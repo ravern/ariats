@@ -13,6 +13,7 @@
 		4C14FAB5201DC791003355DF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4C14FAB4201DC791003355DF /* Assets.xcassets */; };
 		4C14FAB8201DC791003355DF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4C14FAB6201DC791003355DF /* LaunchScreen.storyboard */; };
 		4C286893201F53AD007EC5E0 /* MeshNetworkNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C286892201F53AD007EC5E0 /* MeshNetworkNode.swift */; };
+		4C433E902020B70E008C72CB /* MeshNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C433E8F2020B70E008C72CB /* MeshNetworkOperation.swift */; };
 		4C8FB2FE201F18A800D03F41 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C8FB2FD201F18A800D03F41 /* ViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -24,6 +25,7 @@
 		4C14FAB7201DC791003355DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4C14FAB9201DC791003355DF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4C286892201F53AD007EC5E0 /* MeshNetworkNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshNetworkNode.swift; sourceTree = "<group>"; };
+		4C433E8F2020B70E008C72CB /* MeshNetworkOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshNetworkOperation.swift; sourceTree = "<group>"; };
 		4C8FB2FD201F18A800D03F41 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		4C9E08E2683AC7C3DC4E88F5 /* Pods-ARIATS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ARIATS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ARIATS/Pods-ARIATS.debug.xcconfig"; sourceTree = "<group>"; };
 		9AAD6E0DF0AFE4BDC4233D1A /* Pods-ARIATS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ARIATS.release.xcconfig"; path = "Pods/Target Support Files/Pods-ARIATS/Pods-ARIATS.release.xcconfig"; sourceTree = "<group>"; };
@@ -75,6 +77,7 @@
 				4C14FAAD201DC791003355DF /* AppDelegate.swift */,
 				4C8FB2FD201F18A800D03F41 /* ViewController.swift */,
 				4C286892201F53AD007EC5E0 /* MeshNetworkNode.swift */,
+				4C433E8F2020B70E008C72CB /* MeshNetworkOperation.swift */,
 				4C14FAB1201DC791003355DF /* Main.storyboard */,
 				4C14FAB4201DC791003355DF /* Assets.xcassets */,
 				4C14FAB6201DC791003355DF /* LaunchScreen.storyboard */,
@@ -226,6 +229,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4C8FB2FE201F18A800D03F41 /* ViewController.swift in Sources */,
+				4C433E902020B70E008C72CB /* MeshNetworkOperation.swift in Sources */,
 				4C286893201F53AD007EC5E0 /* MeshNetworkNode.swift in Sources */,
 				4C14FAAE201DC791003355DF /* AppDelegate.swift in Sources */,
 			);

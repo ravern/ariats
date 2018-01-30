@@ -70,7 +70,7 @@ class MeshNetworkNode: NSObject {
     
     func startIngress() {
         if ingress > 0 {
-            let ingressPeerID = MCPeerID(displayName: "\(name!)-ingress")
+            let ingressPeerID = MCPeerID(displayName: name)
             
             ingressSession = MCSession(peer: ingressPeerID, securityIdentity: nil, encryptionPreference: .none)
             ingressSession.delegate = self
@@ -84,7 +84,7 @@ class MeshNetworkNode: NSObject {
     
     func startEgress() {
         if egress > 0 {
-            let egressPeerID = MCPeerID(displayName: "\(name!)-egress")
+            let egressPeerID = MCPeerID(displayName: name)
             
             egressSession = MCSession(peer: egressPeerID, securityIdentity: nil, encryptionPreference: .none)
             egressSession.delegate = self
@@ -106,14 +106,14 @@ extension MeshNetworkNode: MCNearbyServiceBrowserDelegate {
     
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
         // Don't connect to self
-        guard !peerID.displayName.hasPrefix(name) else {
+        guard peerID.displayName != name else {
             return
         }
         
         NSLog("ARIATSAPP: Browser found \(peerID.displayName)")
         
         // Invite immediately if teacher and don't add to buffer
-        if peerID.displayName.hasPrefix(MeshNetworkNodeTeacherID) {
+        if peerID.displayName == MeshNetworkNodeTeacherID {
             curIngress = ingress
             browser.invitePeer(peerID, to: ingressSession, withContext: nil, timeout: 5.0)
             NSLog("ARIATSAPP: Browser invited \(peerID.displayName)")
@@ -125,7 +125,7 @@ extension MeshNetworkNode: MCNearbyServiceBrowserDelegate {
     
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
         // Don't connect to self
-        guard !peerID.displayName.hasPrefix(name) else {
+        guard peerID.displayName != name else {
             return
         }
         
@@ -169,7 +169,7 @@ extension MeshNetworkNode: MCSessionDelegate {
             }
         } else if session == ingressSession {
             if state == .notConnected {
-                if peerID.displayName.hasPrefix(MeshNetworkNodeTeacherID) {
+                if peerID.displayName == MeshNetworkNodeTeacherID {
                     curIngress = 0
                 } else {
                     curIngress -= 1
