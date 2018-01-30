@@ -5,5 +5,4 @@ target 'ARIATS' do
   use_frameworks!
 
   # Pods for ARIATS
-  pod 'BluetoothKit', '~> 0.4.0'
 end

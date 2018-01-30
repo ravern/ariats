@@ -9,26 +9,22 @@
 /* Begin PBXBuildFile section */
 		4A71C97056573DA31938F096 /* Pods_ARIATS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9F8347EC061FFAF960B3838 /* Pods_ARIATS.framework */; };
 		4C14FAAE201DC791003355DF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C14FAAD201DC791003355DF /* AppDelegate.swift */; };
-		4C14FAB0201DC791003355DF /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C14FAAF201DC791003355DF /* ViewController.swift */; };
 		4C14FAB3201DC791003355DF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4C14FAB1201DC791003355DF /* Main.storyboard */; };
 		4C14FAB5201DC791003355DF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4C14FAB4201DC791003355DF /* Assets.xcassets */; };
 		4C14FAB8201DC791003355DF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4C14FAB6201DC791003355DF /* LaunchScreen.storyboard */; };
-		4C8FB2FE201F18A800D03F41 /* StudentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C8FB2FD201F18A800D03F41 /* StudentViewController.swift */; };
-		4C8FB300201F18B200D03F41 /* TeacherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C8FB2FF201F18B200D03F41 /* TeacherViewController.swift */; };
-		4C8FB302201F1A5D00D03F41 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C8FB301201F1A5D00D03F41 /* Constants.swift */; };
+		4C286893201F53AD007EC5E0 /* MeshNetworkNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C286892201F53AD007EC5E0 /* MeshNetworkNode.swift */; };
+		4C8FB2FE201F18A800D03F41 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C8FB2FD201F18A800D03F41 /* ViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		4C14FAAA201DC791003355DF /* ARIATS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ARIATS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C14FAAD201DC791003355DF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		4C14FAAF201DC791003355DF /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		4C14FAB2201DC791003355DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		4C14FAB4201DC791003355DF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4C14FAB7201DC791003355DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4C14FAB9201DC791003355DF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4C8FB2FD201F18A800D03F41 /* StudentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudentViewController.swift; sourceTree = "<group>"; };
-		4C8FB2FF201F18B200D03F41 /* TeacherViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeacherViewController.swift; sourceTree = "<group>"; };
-		4C8FB301201F1A5D00D03F41 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		4C286892201F53AD007EC5E0 /* MeshNetworkNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshNetworkNode.swift; sourceTree = "<group>"; };
+		4C8FB2FD201F18A800D03F41 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		4C9E08E2683AC7C3DC4E88F5 /* Pods-ARIATS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ARIATS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ARIATS/Pods-ARIATS.debug.xcconfig"; sourceTree = "<group>"; };
 		9AAD6E0DF0AFE4BDC4233D1A /* Pods-ARIATS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ARIATS.release.xcconfig"; path = "Pods/Target Support Files/Pods-ARIATS/Pods-ARIATS.release.xcconfig"; sourceTree = "<group>"; };
 		E9F8347EC061FFAF960B3838 /* Pods_ARIATS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ARIATS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -77,10 +73,8 @@
 			isa = PBXGroup;
 			children = (
 				4C14FAAD201DC791003355DF /* AppDelegate.swift */,
-				4C8FB301201F1A5D00D03F41 /* Constants.swift */,
-				4C14FAAF201DC791003355DF /* ViewController.swift */,
-				4C8FB2FD201F18A800D03F41 /* StudentViewController.swift */,
-				4C8FB2FF201F18B200D03F41 /* TeacherViewController.swift */,
+				4C8FB2FD201F18A800D03F41 /* ViewController.swift */,
+				4C286892201F53AD007EC5E0 /* MeshNetworkNode.swift */,
 				4C14FAB1201DC791003355DF /* Main.storyboard */,
 				4C14FAB4201DC791003355DF /* Assets.xcassets */,
 				4C14FAB6201DC791003355DF /* LaunchScreen.storyboard */,
@@ -231,10 +225,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4C8FB302201F1A5D00D03F41 /* Constants.swift in Sources */,
-				4C8FB2FE201F18A800D03F41 /* StudentViewController.swift in Sources */,
-				4C8FB300201F18B200D03F41 /* TeacherViewController.swift in Sources */,
-				4C14FAB0201DC791003355DF /* ViewController.swift in Sources */,
+				4C8FB2FE201F18A800D03F41 /* ViewController.swift in Sources */,
+				4C286893201F53AD007EC5E0 /* MeshNetworkNode.swift in Sources */,
 				4C14FAAE201DC791003355DF /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

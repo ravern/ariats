@@ -23,7 +23,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="I'm a student"/>
                                 <connections>
-                                    <segue destination="ZGc-R4-nQD" kind="presentation" modalTransitionStyle="crossDissolve" id="nEr-rt-5Ts"/>
+                                    <segue destination="ZGc-R4-nQD" kind="presentation" modalTransitionStyle="crossDissolve" id="vEk-gY-d9s"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="i1D-3N-ylM">
@@ -31,7 +31,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="I'm a teacher"/>
                                 <connections>
-                                    <segue destination="xT5-3p-sMX" kind="presentation" modalTransitionStyle="crossDissolve" id="gbo-SW-OEg"/>
+                                    <segue destination="xT5-3p-sMX" kind="presentation" modalTransitionStyle="crossDissolve" id="Kat-Yq-ZE1"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -43,10 +43,10 @@
             </objects>
             <point key="canvasLocation" x="42" y="196"/>
         </scene>
-        <!--Student View Controller-->
+        <!--View Controller-->
         <scene sceneID="Wfl-g7-bHU">
             <objects>
-                <viewController id="ZGc-R4-nQD" customClass="StudentViewController" customModule="ARIATS" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="ZGc-R4-nQD" customClass="ViewController" customModule="ARIATS" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="9Xt-LS-Fhg">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -62,6 +62,9 @@
                                 <rect key="frame" x="118" y="365" width="138" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Take my attendance"/>
+                                <connections>
+                                    <action selector="takeAttendance:" destination="ZGc-R4-nQD" eventType="touchUpInside" id="SMa-k6-HFf"/>
+                                </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Loading..." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="00Q-2M-cHQ">
                                 <rect key="frame" x="124" y="272" width="126" height="21"/>
@@ -74,15 +77,19 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <viewLayoutGuide key="safeArea" id="gD7-f8-cdg"/>
                     </view>
+                    <connections>
+                        <outlet property="name" destination="I4L-fT-a4c" id="nOg-SL-897"/>
+                        <outlet property="status" destination="00Q-2M-cHQ" id="puU-8S-1pg"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="djx-4Z-meH" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="893.60000000000002" y="-124.58770614692655"/>
         </scene>
-        <!--Teacher View Controller-->
+        <!--View Controller-->
         <scene sceneID="laS-I3-uzg">
             <objects>
-                <viewController id="xT5-3p-sMX" customClass="TeacherViewController" customModule="ARIATS" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="xT5-3p-sMX" customClass="ViewController" customModule="ARIATS" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="cFg-I2-gUR">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -98,11 +105,17 @@
                                 <rect key="frame" x="131" y="76" width="113" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Take attendance"/>
+                                <connections>
+                                    <action selector="takeAttendance:" destination="xT5-3p-sMX" eventType="touchUpInside" id="oua-MR-aIB"/>
+                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <viewLayoutGuide key="safeArea" id="2OP-1f-uji"/>
                     </view>
+                    <connections>
+                        <outlet property="status" destination="juU-rf-lcG" id="awp-GX-jlp"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="icz-qZ-wPH" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
