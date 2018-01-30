@@ -37,7 +37,7 @@ class ViewController: UIViewController {
         }
 
         if let name = name {
-            node = MeshNetworkNode(name: name, delegate: self, ingress: ingress, egress: 3)
+            node = MeshNetworkNode(name: name, delegate: self, ingress: ingress, egress: 1)
             sender.isEnabled = false
         }
     }
