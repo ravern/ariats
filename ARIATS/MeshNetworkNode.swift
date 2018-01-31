@@ -12,7 +12,8 @@ import Foundation
 let MeshNetworkNodeServiceType = "ariats-net"
 let MeshNetworkNodeTeacherID = "TEACHER"
 let MeshNetworkNodeTeacherSearchDuration = 10
-let MeshNetworkNodePeerSearchDuration = 3
+let MeshNetworkNodePeerSearchInterval = 3
+let MeshNetworkNodeRequestInterval = 3
 
 class MeshNetworkNode: NSObject {
     
@@ -29,6 +30,8 @@ class MeshNetworkNode: NSObject {
     
     private var advertiser: MCNearbyServiceAdvertiser!
     private var egressSession: MCSession!
+    
+    private var hasGivenUp = false
 
     init(name: String, delegate: MeshNetworkNodeDelegate? = nil, ingress: Int, egress: Int) {
         super.init()
@@ -41,30 +44,20 @@ class MeshNetworkNode: NSObject {
         startIngress()
         if name == MeshNetworkNodeTeacherID {
             startEgress()
+            
+            RunLoop.current.add(Timer(timeInterval: TimeInterval(MeshNetworkNodeRequestInterval), repeats: true) { _ in
+                let op = MeshNetworkOperation.tokenRequest
+                do {
+                    try self.egressSession.send(op.data, toPeers: self.egressSession.connectedPeers, with: MCSessionSendDataMode.reliable)
+                } catch let error {
+                    NSLog("ARIATSAPP: Session (egress) failed to send operation \(op) due to \(error)")
+                }
+            }, forMode: RunLoopMode.defaultRunLoopMode)
         }
 
         // Try to search for the teacher for a while
         RunLoop.current.add(Timer(timeInterval: TimeInterval(MeshNetworkNodeTeacherSearchDuration), repeats: false) { _ in
-            // Give up on trying to search for a teacher
-            NSLog("ARIATSAPP: Browser gave up on finding a teacher, connecting to peers instead...")
-            
-            // Connect to peers instead
-            RunLoop.current.add(Timer(timeInterval: TimeInterval(MeshNetworkNodePeerSearchDuration), repeats: true) { _ in
-                // Only run if have browser peers
-                guard self.browserPeers.count > 0 else {
-                    return
-                }
-                
-                while self.curIngress < ingress {
-                    self.curIngress += 1
-
-                    // Invite the first peer and requeue
-                    let peer = self.browserPeers.removeFirst()
-                    self.browser.invitePeer(peer, to: self.ingressSession, withContext: nil, timeout: 5.0)
-                    self.browserPeers.append(peer)
-                    NSLog("ARIATSAPP: Browser invited \(peer.displayName)")
-                }
-            }, forMode: RunLoopMode.defaultRunLoopMode)
+            self.giveUp()
         }, forMode: RunLoopMode.defaultRunLoopMode)
     }
     
@@ -96,6 +89,47 @@ class MeshNetworkNode: NSObject {
         }
         
     }
+    
+    func giveUp() {
+        if !hasGivenUp {
+            // Give up on trying to search for a teacher
+            NSLog("ARIATSAPP: Browser gave up on finding a teacher, connecting to peers instead...")
+            
+            // Connect to peers instead
+            DispatchQueue.main.async {
+                RunLoop.current.add(Timer(timeInterval: TimeInterval(MeshNetworkNodePeerSearchInterval), repeats: true) { _ in
+                    // Only run if have browser peers
+                    guard self.browserPeers.count > 0 else {
+                        return
+                    }
+                    
+                    while self.curIngress < self.ingress {
+                        self.curIngress += 1
+                        
+                        // Invite the first peer and requeue
+                        let peer = self.browserPeers.removeFirst()
+                        self.browser.invitePeer(peer, to: self.ingressSession, withContext: nil, timeout: 5.0)
+                        self.browserPeers.append(peer)
+                        NSLog("ARIATSAPP: Browser invited \(peer.displayName)")
+                    }
+                }, forMode: RunLoopMode.defaultRunLoopMode)
+            }
+        }
+        
+        hasGivenUp = true
+    }
+    
+    func send(session: MCSession, peers: [MCPeerID], data: Data) {
+        if peers.count == 0 {
+            return
+        }
+        
+        do {
+            try session.send(data, toPeers: peers, with: .reliable)
+        } catch let error {
+            NSLog("ARIATSAPP: Session failed to send data due to \(error)")
+        }
+    }
 }
 
 extension MeshNetworkNode: MCNearbyServiceBrowserDelegate {
@@ -117,6 +151,8 @@ extension MeshNetworkNode: MCNearbyServiceBrowserDelegate {
             curIngress = ingress
             browser.invitePeer(peerID, to: ingressSession, withContext: nil, timeout: 5.0)
             NSLog("ARIATSAPP: Browser invited \(peerID.displayName)")
+            
+            return
         }
             
         // Add to buffer
@@ -162,29 +198,43 @@ extension MeshNetworkNode: MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         if session == egressSession {
             if state == .notConnected {
-                curEgress -= 1
                 NSLog("ARIATSAPP: Session (egress) disconnected peer \(peerID.displayName)")
+                
+                curEgress -= 1
             } else if state == .connected {
                 NSLog("ARIATSAPP: Session (egress) connected to peer \(peerID.displayName)")
             }
         } else if session == ingressSession {
             if state == .notConnected {
+                NSLog("ARIATSAPP: Session (ingress) declined by peer \(peerID.displayName)")
+                
                 if peerID.displayName == MeshNetworkNodeTeacherID {
                     curIngress = 0
+                    
+                    // Since declined by teacher, connect to peers instead
+                    giveUp()
                 } else {
                     curIngress -= 1
                 }
-                NSLog("ARIATSAPP: Session (ingress) declined by peer \(peerID.displayName)")
             } else if state == .connected {
-                startEgress()
                 NSLog("ARIATSAPP: Session (ingress) connected to peer \(peerID.displayName)")
+                
+                startEgress()
             }
         }
     }
     
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
+        let op = MeshNetworkOperation(data: data)
+        NSLog("ARIATSAPP: Session received operation \(op)")
+        
+        if session == ingressSession {
+            send(session: egressSession, peers: egressSession.connectedPeers, data: op.data)
+        } else if session == egressSession {
+            send(session: ingressSession, peers: ingressSession.connectedPeers, data: op.data)
+        }
     }
-    
+
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
     }
     
