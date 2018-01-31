@@ -15,6 +15,11 @@ let MeshNetworkNodeTeacherSearchDuration = 10
 let MeshNetworkNodePeerSearchInterval = 3
 let MeshNetworkNodeRequestInterval = 3
 
+// CURRENT BUGS
+//     1. If the teacher gets cut off halfway through, the peers connected to the teacher will start
+//        connecting to their peers instead as the giveUp() function if called. This causes the network
+//        to form cycles and fail.
+
 class MeshNetworkNode: NSObject {
     
     private var name: String!
