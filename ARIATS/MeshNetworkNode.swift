@@ -12,10 +12,11 @@ import Foundation
 let MeshNetworkNodeServiceType = "ariats-net"
 let MeshNetworkNodeTeacherID = "TEACHER"
 let MeshNetworkNodeTeacherSearchDuration = 10
-let MeshNetworkNodePeerSearchInterval = 3
-let MeshNetworkNodeRequestInterval = 3
+let MeshNetworkNodeTeacherPollInterval = 1
+let MeshNetworkNodePeerSearchInterval = 0.5
+let MeshNetworkNodeMinimumDuration = 5
 
-// CURRENT BUGS
+// CURRENT BUGS/LIMITATIONS
 //     1. If the teacher gets cut off halfway through, the peers connected to the teacher will start
 //        connecting to their peers instead as the giveUp() function if called. This causes the network
 //        to form cycles and fail.
@@ -35,9 +36,12 @@ class MeshNetworkNode: NSObject {
     
     private var advertiser: MCNearbyServiceAdvertiser!
     private var egressSession: MCSession!
-    
-    private var hasGivenUp = false
 
+    private var hasGivenUp = false
+    
+    // TEACHER STUFF
+    private var students: [(String, Double)] = []
+    
     init(name: String, delegate: MeshNetworkNodeDelegate? = nil, ingress: Int, egress: Int) {
         super.init()
         
@@ -49,6 +53,18 @@ class MeshNetworkNode: NSObject {
         startIngress()
         if name == MeshNetworkNodeTeacherID {
             startEgress()
+            
+            RunLoop.current.add(Timer(timeInterval: TimeInterval(MeshNetworkNodeTeacherPollInterval), repeats: true) { _ in
+                var i = 0
+                for (student, time) in self.students {
+                    if Int(Date().timeIntervalSince1970 - time) > MeshNetworkNodeMinimumDuration {
+                        self.send(session: self.egressSession, peers: self.egressSession.connectedPeers.filter { $0.displayName.nodeDirection == "ingress" }, data: MeshNetworkOperation.success(student).data)
+                        self.students.remove(at: i)
+                        i -= 1
+                    }
+                    i += 1
+                }
+            }, forMode: RunLoopMode.defaultRunLoopMode)
         }
 
         // Try to search for the teacher for a while
@@ -59,7 +75,7 @@ class MeshNetworkNode: NSObject {
     
     func startIngress() {
         if ingress > 0 {
-            let ingressPeerID = MCPeerID(displayName: name)
+            let ingressPeerID = MCPeerID(displayName: "\(name!)-ingress")
             
             ingressSession = MCSession(peer: ingressPeerID, securityIdentity: nil, encryptionPreference: .none)
             ingressSession.delegate = self
@@ -67,14 +83,15 @@ class MeshNetworkNode: NSObject {
             browser = MCNearbyServiceBrowser(peer: ingressPeerID, serviceType: MeshNetworkNodeServiceType)
             browser.delegate = self
             browser.startBrowsingForPeers()
-            delegate?.nodeDidStartSearchingForTeacher(self)
             NSLog("ARIATSAPP: Browser started browsing")
+            
+            delegate?.nodeDidStartSearchingForTeacher(self)
         }
     }
     
     func startEgress() {
         if egress > 0 {
-            let egressPeerID = MCPeerID(displayName: name)
+            let egressPeerID = MCPeerID(displayName: "\(name!)-egress")
             
             egressSession = MCSession(peer: egressPeerID, securityIdentity: nil, encryptionPreference: .none)
             egressSession.delegate = self
@@ -121,10 +138,10 @@ class MeshNetworkNode: NSObject {
     }
     
     func send(session: MCSession, peers: [MCPeerID], data: Data) {
-        if peers.count == 0 {
+        guard peers.count != 0 else {
             return
         }
-        
+
         do {
             try session.send(data, toPeers: peers, with: .reliable)
         } catch let error {
@@ -141,14 +158,14 @@ extension MeshNetworkNode: MCNearbyServiceBrowserDelegate {
     
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
         // Don't connect to self
-        guard peerID.displayName != name else {
+        guard peerID.displayName.nodeName != name.nodeName else {
             return
         }
         
         NSLog("ARIATSAPP: Browser found \(peerID.displayName)")
         
         // Invite immediately if teacher and don't add to buffer
-        if peerID.displayName == MeshNetworkNodeTeacherID {
+        if peerID.displayName.nodeName == MeshNetworkNodeTeacherID {
             curIngress = ingress
             browser.invitePeer(peerID, to: ingressSession, withContext: nil, timeout: 5.0)
             NSLog("ARIATSAPP: Browser invited \(peerID.displayName)")
@@ -197,7 +214,7 @@ extension MeshNetworkNode: MCNearbyServiceAdvertiserDelegate {
 extension MeshNetworkNode: MCSessionDelegate {
     
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
-        if session == egressSession {
+        if session == egressSession && peerID.displayName.nodeDirection == "ingress" {
             if state == .notConnected {
                 NSLog("ARIATSAPP: Session (egress) disconnected peer \(peerID.displayName)")
                 
@@ -205,11 +222,11 @@ extension MeshNetworkNode: MCSessionDelegate {
             } else if state == .connected {
                 NSLog("ARIATSAPP: Session (egress) connected to peer \(peerID.displayName)")
             }
-        } else if session == ingressSession {
+        } else if session == ingressSession && peerID.displayName.nodeDirection == "egress" {
             if state == .notConnected {
                 NSLog("ARIATSAPP: Session (ingress) declined by peer \(peerID.displayName)")
                 
-                if peerID.displayName == MeshNetworkNodeTeacherID {
+                if peerID.displayName.nodeName == MeshNetworkNodeTeacherID {
                     curIngress = 0
                     
                     // Since declined by teacher, connect to peers instead
@@ -219,11 +236,15 @@ extension MeshNetworkNode: MCSessionDelegate {
                 }
             } else if state == .connected {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.delegate?.node(self, didConnectToPeer: peerID.displayName)
+                    self.delegate?.node(self, didConnectToPeer: peerID.displayName.nodeName)
                 }
                 NSLog("ARIATSAPP: Session (ingress) connected to peer \(peerID.displayName)")
-                
+
                 startEgress()
+                
+                if name != MeshNetworkNodeTeacherID {
+                    send(session: ingressSession, peers: ingressSession.connectedPeers.filter { $0.displayName.nodeDirection == "egress" }, data: MeshNetworkOperation.joined(name).data)
+                }
             }
         }
     }
@@ -233,9 +254,31 @@ extension MeshNetworkNode: MCSessionDelegate {
         NSLog("ARIATSAPP: Session received operation \(op)")
         
         if session == ingressSession {
-            send(session: egressSession, peers: egressSession.connectedPeers, data: op.data)
+            if name != MeshNetworkNodeTeacherID {
+                if case .success(let name) = op {
+                    if self.name == name {
+                        // Success!
+                        DispatchQueue.main.async {
+                            self.delegate?.nodeWasSuccessful(self)
+                        }
+                        return
+                    }
+                }
+            }
+            send(session: egressSession, peers: egressSession.connectedPeers.filter { $0.displayName.nodeDirection == "ingress" }, data: op.data)
         } else if session == egressSession {
-            send(session: ingressSession, peers: ingressSession.connectedPeers, data: op.data)
+            if name == MeshNetworkNodeTeacherID {
+                if case .joined(let name) = op {
+                    // Add student to state if not already
+                    if (self.students.filter { $0.0 == name }).count == 0 {
+                        self.students.append((name, Date().timeIntervalSince1970))
+                    }
+                }
+                return
+            }
+            if ingressSession != nil {
+                send(session: ingressSession, peers: ingressSession.connectedPeers.filter { $0.displayName.nodeDirection == "egress" }, data: op.data)
+            }
         }
     }
 
@@ -246,6 +289,17 @@ extension MeshNetworkNode: MCSessionDelegate {
     }
     
     func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {
+    }
+}
+
+private extension String {
+    
+    var nodeName: String {
+        return String(split(separator: "-")[0])
+    }
+    
+    var nodeDirection: String {
+        return String(split(separator: "-")[1])
     }
 }
 
@@ -261,5 +315,5 @@ protocol MeshNetworkNodeDelegate {
     
     func nodeDidSendToken(_ node: MeshNetworkNode)
     
-    func nodeDidGetAcknowledged(_ node: MeshNetworkNode)
+    func nodeWasSuccessful(_ node: MeshNetworkNode)
 }

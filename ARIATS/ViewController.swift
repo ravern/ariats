@@ -37,7 +37,7 @@ class ViewController: UIViewController {
         }
 
         if let name = name {
-            node = MeshNetworkNode(name: name, delegate: self, ingress: ingress, egress: 1)
+            node = MeshNetworkNode(name: name, delegate: self, ingress: ingress, egress: 3)
             sender.isEnabled = false
         }
     }
@@ -71,7 +71,7 @@ extension ViewController: MeshNetworkNodeDelegate {
         status.text = "Taking attendance..."
     }
     
-    func nodeDidGetAcknowledged(_ node: MeshNetworkNode) {
+    func nodeWasSuccessful(_ node: MeshNetworkNode) {
         status.text = "Attendance taken!"
         view.backgroundColor = .green
     }
