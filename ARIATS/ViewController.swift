@@ -10,11 +10,14 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    @IBOutlet var status: UILabel!
     @IBOutlet var name: UITextField!
+    @IBOutlet var status: UIButton!
+    @IBOutlet var studentsTable: UITableView!
     
     var isTeacher = false
     var node: MeshNetworkNode!
+    
+    var students: [String] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,33 +49,51 @@ class ViewController: UIViewController {
 extension ViewController: MeshNetworkNodeDelegate {
 
     func nodeDidStartSearchingForTeacher(_ node: MeshNetworkNode) {
-        status.text = "Searching for teacher..."
+        status.setTitle("Searching for teacher...", for: .normal)
     }
     
     func nodeDidGiveUpSearchingForTeacher(_ node: MeshNetworkNode) {
-        status.text = "Teacher not available, connecting to peers..."
+        status.setTitle("Searching for peers...", for: .normal)
     }
     
     func nodeDidStartEgress(_ node: MeshNetworkNode) {
         if isTeacher {
-            status.text = "Listening for connections..."
+            status.setTitle("Taking attendance...", for: .normal)
         }
     }
     
     func node(_ node: MeshNetworkNode, didConnectToPeer peer: String) {
-        if peer == MeshNetworkNodeTeacherID {
-            status.text = "Connected to Teacher!"
+        if isTeacher {
+            students.append(peer)
+            studentsTable.reloadData()
         } else {
-            status.text = "Connected to \(peer)!"
+            if peer == MeshNetworkNodeTeacherID {
+                status.setTitle("Connected to Teacher!", for: .normal)
+            } else {
+                status.setTitle("Connected to \(peer)!", for: .normal)
+            }
         }
     }
     
     func nodeDidSendToken(_ node: MeshNetworkNode) {
-        status.text = "Taking attendance..."
+        status.setTitle("Taking attendance...", for: .normal)
     }
     
     func nodeWasSuccessful(_ node: MeshNetworkNode) {
-        status.text = "Attendance taken!"
-        view.backgroundColor = .green
+        status.setTitle("Attendance taken!", for: .normal)
+        status.backgroundColor = .green
+    }
+}
+
+extension ViewController: UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return students.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell")!
+        (cell.viewWithTag(1) as! UILabel).text = students[indexPath.row]
+        return cell
     }
 }

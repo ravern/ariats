@@ -37,7 +37,9 @@ class MeshNetworkNode: NSObject {
     private var advertiser: MCNearbyServiceAdvertiser!
     private var egressSession: MCSession!
 
+    // Some flags
     private var hasGivenUp = false
+    private var tryToDisconnect = false
     
     // TEACHER STUFF
     private var students: [(String, Double)] = []
@@ -57,6 +59,7 @@ class MeshNetworkNode: NSObject {
             RunLoop.current.add(Timer(timeInterval: TimeInterval(MeshNetworkNodeTeacherPollInterval), repeats: true) { _ in
                 var i = 0
                 for (student, time) in self.students {
+                    NSLog("ARIATSAPP: Polling student \(student), \(time) at \(Date().timeIntervalSince1970)")
                     if Int(Date().timeIntervalSince1970 - time) > MeshNetworkNodeMinimumDuration {
                         self.send(session: self.egressSession, peers: self.egressSession.connectedPeers.filter { $0.displayName.nodeDirection == "ingress" }, data: MeshNetworkOperation.success(student).data)
                         self.students.remove(at: i)
@@ -213,12 +216,27 @@ extension MeshNetworkNode: MCNearbyServiceAdvertiserDelegate {
 
 extension MeshNetworkNode: MCSessionDelegate {
     
+    func tryToDisconnectBasedOnFlag() {
+        if tryToDisconnect && (egressSession.connectedPeers.filter { $0.displayName.nodeDirection == "ingress" }).count == 0 {
+            DispatchQueue.main.async {
+                self.delegate?.nodeWasSuccessful(self)
+                self.delegate = nil // HACK
+            }
+            browser.stopBrowsingForPeers()
+            advertiser.stopAdvertisingPeer()
+            egressSession.disconnect()
+            ingressSession.disconnect()
+        }
+    }
+    
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         if session == egressSession && peerID.displayName.nodeDirection == "ingress" {
             if state == .notConnected {
                 NSLog("ARIATSAPP: Session (egress) disconnected peer \(peerID.displayName)")
                 
                 curEgress -= 1
+                
+                tryToDisconnectBasedOnFlag()
             } else if state == .connected {
                 NSLog("ARIATSAPP: Session (egress) connected to peer \(peerID.displayName)")
             }
@@ -257,10 +275,9 @@ extension MeshNetworkNode: MCSessionDelegate {
             if name != MeshNetworkNodeTeacherID {
                 if case .success(let name) = op {
                     if self.name == name {
-                        // Success!
-                        DispatchQueue.main.async {
-                            self.delegate?.nodeWasSuccessful(self)
-                        }
+                        // Success! Set the disconnect flag.
+                        tryToDisconnect = true
+                        tryToDisconnectBasedOnFlag()
                         return
                     }
                 }
@@ -272,6 +289,7 @@ extension MeshNetworkNode: MCSessionDelegate {
                     // Add student to state if not already
                     if (self.students.filter { $0.0 == name }).count == 0 {
                         self.students.append((name, Date().timeIntervalSince1970))
+                        delegate?.node(self, didConnectToPeer: name)
                     }
                 }
                 return
